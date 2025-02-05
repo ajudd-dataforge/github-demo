@@ -1,0 +1,54 @@
+---
+source_name: "HubSpot - Deals Pipelines"
+source_description: "getting deals pipelines from HubSpot"
+ingestion_parameters:
+  custom_parameters:
+    get_pipelines: true
+    hubspot_object: "deals"
+    flatten_properties: true
+parsing_parameters:
+  schema_evolution: "Add, Remove, Upcast"
+connection_type: "custom"
+custom_ingest_cluster_configuration_name: "HubSpot Custom Notebook"
+raw_attributes:
+- raw_attribute_name: "archived"
+  data_type: "boolean"
+- raw_attribute_name: "createdat"
+  data_type: "string"
+- raw_attribute_name: "id"
+  data_type: "string"
+- raw_attribute_name: "updatedat"
+  data_type: "string"
+rules:
+- attribute_name: "test"
+  name: "test"
+  datatype: "int"
+  expression: "1"
+  expression_parsed: "1"
+channels:
+- output_name: "CRM Data"
+  output_source_columns:
+  - name: "archived"
+    expression: "[This].archived"
+    datatype: "boolean"
+    parameter:
+      name: "archived"
+      type: "raw"
+  - name: "createdat"
+    expression: "[This].createdat"
+    datatype: "string"
+    parameter:
+      name: "createdat"
+      type: "raw"
+  - name: "id"
+    expression: "[This].id"
+    datatype: "string"
+    parameter:
+      name: "id"
+      type: "raw"
+  - name: "updatedat"
+    expression: "[This].updatedat"
+    datatype: "string"
+    parameter:
+      name: "updatedat"
+      type: "raw"
