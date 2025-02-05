@@ -1,0 +1,49 @@
+---
+source_name: "pc_policyterm"
+source_description: "Auto-created from connection metadata"
+ingestion_parameters:
+  source_query: "select * from public.pc_policyterm"
+  generate_row_id: true
+parsing_parameters:
+  schema_evolution: "Add, Remove, Upcast"
+connection_name: "Tembo"
+schedule_name: "Default"
+active_flag: false
+raw_attributes:
+- raw_attribute_name: "affinitygroupid"
+  data_type: "double"
+- raw_attribute_name: "policyid"
+  data_type: "double"
+- raw_attribute_name: "policytermid"
+  data_type: "double"
+dependencies:
+- source_name: "pc_policy"
+- source_name: "pc_policyperiod"
+- source_name: "pcx_wc7affinitygroup"
+rules:
+- attribute_name: "unique_policytermid"
+  name: "unique policytermid"
+  datatype: "double"
+  expression: "[This].policytermid"
+  expression_parsed: "P<1>"
+  unique_flag: true
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "policytermid"
+- attribute_name: "unique_policytermid_uv_flag"
+  name: "unique policytermid uniqueness validation"
+  parent_attribute_name: "unique_policytermid"
+  description: "Auto-generated rule to validate uniqueness of unique_policytermid"
+  datatype: "boolean"
+  expression: "COUNT(1) OVER (PARTITION BY [This].unique_policytermid) = 1"
+  expression_parsed: "COUNT(1) OVER (PARTITION BY P<1>) = 1"
+  rule_type_code: "V"
+  validation_action_code: "F"
+  validation_type_code: "U"
+  keep_current_flag: true
+  window_function_flag: true
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "unique_policytermid"
