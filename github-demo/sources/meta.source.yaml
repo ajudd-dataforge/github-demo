@@ -1,0 +1,24 @@
+---
+source_name: "meta.source"
+source_description: "Auto-created from connection metadata"
+ingestion_parameters:
+  source_query: "select * from meta.source"
+  generate_row_id: true
+parsing_parameters:
+  schema_evolution: "Add, Remove, Upcast"
+cdc_refresh_parameters:
+  key_columns:
+  - "source_id"
+  exclude_from_cdc: []
+refresh_type: "key"
+connection_name: "next metastore"
+schedule_name: "Default"
+raw_attributes:
+- raw_attribute_name: "custom_ingest_cluster_configuration_id"
+  data_type: "int"
+- raw_attribute_name: "source_id"
+  data_type: "int"
+  unique_flag: true
+dependencies:
+- source_name: "history.process"
+- source_name: "meta.cluster_configuration"
