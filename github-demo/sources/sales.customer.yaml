@@ -1,0 +1,61 @@
+---
+source_name: "Sales.Customer"
+source_description: "Auto-created from connection metadata"
+ingestion_parameters:
+  source_query: "select * from Sales.Customer"
+parsing_parameters:
+  schema_evolution: "Add, Remove, Upcast"
+connection_name: "AdventureWorks2019"
+hub_view_name: "adventureworks___sales_customer"
+raw_attributes:
+- raw_attribute_name: "customerid"
+  raw_metadata:
+    scale: 0
+    precision: 10
+    nullable_flag: false
+  data_type: "int"
+- raw_attribute_name: "storeid"
+  raw_metadata:
+    scale: 0
+    precision: 10
+    nullable_flag: true
+  data_type: "int"
+dependencies:
+- source_name: "SalesOrderDetail"
+- source_name: "SalesOrderHeader"
+rules:
+- attribute_name: "unique_customerid"
+  name: "unique customerid"
+  datatype: "int"
+  expression: "[This].customerid"
+  expression_parsed: "P<1>"
+  unique_flag: true
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "customerid"
+- attribute_name: "unique_customerid_uv_flag"
+  name: "unique customerid uniqueness validation"
+  parent_attribute_name: "unique_customerid"
+  description: "Auto-generated rule to validate uniqueness of unique_customerid"
+  datatype: "boolean"
+  expression: "COUNT(1) OVER (PARTITION BY [This].unique_customerid) = 1"
+  expression_parsed: "COUNT(1) OVER (PARTITION BY P<1>) = 1"
+  rule_type_code: "V"
+  validation_action_code: "F"
+  validation_type_code: "U"
+  keep_current_flag: true
+  window_function_flag: true
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "unique_customerid"
+channels:
+- output_name: "new"
+  output_source_columns:
+  - name: "testt"
+    expression: "[This].customerid"
+    datatype: "int"
+    parameter:
+      name: "customerid"
+      type: "raw"
