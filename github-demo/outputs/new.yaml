@@ -1,0 +1,11 @@
+---
+output_name: "new"
+output_type: "virtual"
+output_package_parameters:
+  view_name: "newpaplsdkj"
+output_description: "x"
+columns:
+- name: "testt"
+  datatype: "int"
+  datatype_schema: "integer"
+  complex_flag: false
