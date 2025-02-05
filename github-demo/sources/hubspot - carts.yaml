@@ -1,0 +1,11 @@
+---
+source_name: "HubSpot - Carts"
+source_description: "getting carts data from HubSpot"
+ingestion_parameters:
+  custom_parameters:
+    hubspot_object: "carts"
+    include_all_properties: "yes"
+parsing_parameters:
+  schema_evolution: "Add, Remove, Upcast"
+connection_type: "custom"
+custom_ingest_cluster_configuration_name: "HubSpot Custom Notebook"
