@@ -1,0 +1,17 @@
+---
+source_name: "FrostByte - RAW POS - Order Detail"
+source_description: "x"
+ingestion_parameters:
+  file_mask: "raw_pos/order_detail/order_detail_0_0_0.csv.gz"
+  delete_file: false
+parsing_parameters:
+  mode: "PERMISSIVE"
+  header: false
+  schema: "order_detail_id LONG,\n    order_id LONG,\n    menu_item_id LONG,\n   \
+    \ discount_id STRING,\n    line_number LONG,\n    quantity INT,\n    unit_price\
+    \ DECIMAL,\n    price DECIMAL,\n    order_item_discount_amount STRING"
+  schema_evolution: "Add, Remove, Upcast"
+connection_type: "file"
+connection_name: "frostbyte joe"
+process_configuration_name: "Alec Process Config"
+active_flag: false
