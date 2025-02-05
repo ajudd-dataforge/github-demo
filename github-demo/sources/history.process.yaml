@@ -1,0 +1,22 @@
+---
+source_name: "history.process"
+source_description: "Auto-created from connection metadata"
+ingestion_parameters:
+  source_query: "select * from history.process where end_datetime >= '2024-11-01'"
+parsing_parameters:
+  schema_evolution: "Add, Remove, Upcast"
+cdc_refresh_parameters:
+  key_columns:
+  - "process_id"
+  exclude_from_cdc: []
+refresh_type: "key"
+connection_name: "next metastore"
+schedule_name: "Default"
+raw_attributes:
+- raw_attribute_name: "process_id"
+  data_type: "int"
+  unique_flag: true
+- raw_attribute_name: "source_id"
+  data_type: "int"
+dependencies:
+- source_name: "meta.source"
