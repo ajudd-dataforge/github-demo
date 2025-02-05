@@ -1,0 +1,45 @@
+---
+source_name: "Zendesk - Ticket Metric Events"
+source_description: "pulling ticket metric events from zendesk"
+ingestion_parameters:
+  custom_parameters:
+    api: "incremental"
+    pageSize: "1000"
+    apiObject: "ticket_metric_events"
+    startTime: "1598131378"
+parsing_parameters:
+  schema_evolution: "Add, Remove, Upcast"
+connection_type: "custom"
+custom_ingest_cluster_configuration_name: "Zendesk Object Custom Ingest Notebook"
+active_flag: false
+raw_attributes:
+- raw_attribute_name: "id"
+  data_type: "long"
+rules:
+- attribute_name: "unique_id"
+  rule_template_name: "unique id"
+  name: "unique id"
+  datatype: "long"
+  expression: "[This].id"
+  expression_parsed: "P<1>"
+  unique_flag: true
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "id"
+- attribute_name: "unique_id_uv_flag"
+  name: "unique id uniqueness validation"
+  parent_attribute_name: "unique_id"
+  description: "Auto-generated rule to validate uniqueness of unique_id"
+  datatype: "boolean"
+  expression: "COUNT(1) OVER (PARTITION BY [This].unique_id) = 1"
+  expression_parsed: "COUNT(1) OVER (PARTITION BY P<1>) = 1"
+  rule_type_code: "V"
+  validation_action_code: "F"
+  validation_type_code: "U"
+  keep_current_flag: true
+  window_function_flag: true
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "unique_id"
