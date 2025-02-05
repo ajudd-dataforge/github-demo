@@ -1,0 +1,11 @@
+---
+source_name: "{schema}.vProductAndDescription"
+source_description: "Auto-created from connection metadata"
+ingestion_parameters:
+  source_query: "select * from Production.vProductAndDescription"
+  generate_row_id: true
+parsing_parameters:
+  schema_evolution: "Add, Remove, Upcast"
+connection_name: "AW no agent"
+schedule_name: "Default"
+active_flag: false
