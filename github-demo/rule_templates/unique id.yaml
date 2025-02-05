@@ -1,0 +1,12 @@
+---
+name: "unique id"
+datatype: "long"
+attribute_name: "unique_id"
+expression: "[This].id"
+expression_parsed: "P<1>"
+unique_flag: true
+test_source_name: "Zendesk - Sections"
+parameters:
+- id: 1
+  attribute_name: "id"
+  datatype: "long"
