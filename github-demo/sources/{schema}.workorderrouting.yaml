@@ -1,0 +1,30 @@
+---
+source_name: "{schema}.WorkOrderRouting"
+source_description: "Auto-created from connection metadata"
+ingestion_parameters:
+  source_query: "select * from Production.WorkOrderRouting"
+  generate_row_id: true
+parsing_parameters:
+  schema_evolution: "Add, Remove, Upcast"
+cdc_refresh_parameters:
+  key_columns:
+  - "WorkOrderID"
+  - "ProductID"
+  - "OperationSequence"
+  exclude_from_cdc: []
+refresh_type: "key"
+connection_name: "AW no agent"
+schedule_name: "Default"
+active_flag: false
+raw_attributes:
+- raw_attribute_name: "locationid"
+  data_type: "int"
+- raw_attribute_name: "operationsequence"
+  data_type: "int"
+- raw_attribute_name: "productid"
+  data_type: "int"
+- raw_attribute_name: "workorderid"
+  data_type: "int"
+dependencies:
+- source_name: "{schema}.Location"
+- source_name: "{schema}.WorkOrder"
