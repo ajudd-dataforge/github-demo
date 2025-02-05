@@ -1,0 +1,56 @@
+---
+source_name: "XML - travel alerts"
+source_description: "demo"
+ingestion_parameters:
+  file_mask: "XML/travel_*.xml"
+  delete_file: false
+parsing_parameters:
+  rowTag: "item"
+  valueTag: "value"
+  schema_evolution: "Add, Remove, Upcast"
+file_type: "xml"
+connection_type: "file"
+connection_name: "s3 df public"
+active_flag: false
+raw_attributes:
+- raw_attribute_name: "category"
+  data_type: "array"
+  datatype_schema:
+    type: "array"
+    elementType:
+      type: "struct"
+      fields:
+      - name: "_domain"
+        type: "string"
+        metadata: {}
+        nullable: true
+      - name: "value"
+        type: "string"
+        metadata: {}
+        nullable: true
+    containsNull: true
+rules:
+- attribute_name: "category_ss"
+  name: "category_ss"
+  datatype: "array"
+  datatype_schema:
+    type: "array"
+    elementType:
+      type: "struct"
+      fields:
+      - name: "_domain"
+        type: "string"
+        metadata: {}
+        nullable: false
+      - name: "value"
+        type: "string"
+        metadata: {}
+        nullable: false
+    containsNull: false
+  expression: "[This].category"
+  expression_parsed: "P<1>"
+  rule_type_code: "S"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "category"
