@@ -1,0 +1,46 @@
+---
+source_name: "pcx_wc7affinitygroup"
+source_description: "Auto-created from connection metadata"
+ingestion_parameters:
+  source_query: "select * from public.pcx_wc7affinitygroup"
+  generate_row_id: true
+parsing_parameters:
+  schema_evolution: "Add, Remove, Upcast"
+connection_name: "Tembo"
+schedule_name: "Default"
+active_flag: false
+raw_attributes:
+- raw_attribute_name: "organizationid"
+  data_type: "double"
+- raw_attribute_name: "wc7affinitygroupid"
+  data_type: "double"
+dependencies:
+- source_name: "pc_organization"
+- source_name: "pc_policyterm"
+rules:
+- attribute_name: "unique_wc7affinitygroupid"
+  name: "unique wc7affinitygroupid"
+  datatype: "double"
+  expression: "[This].wc7affinitygroupid"
+  expression_parsed: "P<1>"
+  unique_flag: true
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "wc7affinitygroupid"
+- attribute_name: "unique_wc7affinitygroupid_uv_flag"
+  name: "unique wc7affinitygroupid uniqueness validation"
+  parent_attribute_name: "unique_wc7affinitygroupid"
+  description: "Auto-generated rule to validate uniqueness of unique_wc7affinitygroupid"
+  datatype: "boolean"
+  expression: "COUNT(1) OVER (PARTITION BY [This].unique_wc7affinitygroupid) = 1"
+  expression_parsed: "COUNT(1) OVER (PARTITION BY P<1>) = 1"
+  rule_type_code: "V"
+  validation_action_code: "F"
+  validation_type_code: "U"
+  keep_current_flag: true
+  window_function_flag: true
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "unique_wc7affinitygroupid"
