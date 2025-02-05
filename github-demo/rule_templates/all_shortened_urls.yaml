@@ -1,0 +1,19 @@
+---
+name: "all_shortened_urls"
+description: "creating an array of all shortened urls to compare to extracted urls\
+  \ from body of each record"
+datatype: "array"
+datatype_schema:
+  type: "array"
+  elementType: "string"
+  containsNull: false
+attribute_name: "all_shortened_urls"
+expression: "collect_list([This].shortened_url) over ()"
+expression_parsed: "collect_list(P<1>) over ()"
+keep_current_flag: true
+window_function_flag: true
+test_source_name: "Zendesk - Articles"
+parameters:
+- id: 1
+  attribute_name: "shortened_url"
+  datatype: "string"
