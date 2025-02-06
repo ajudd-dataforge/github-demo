@@ -20,3 +20,13 @@ raw_attributes:
   data_type: "int"
 dependencies:
 - source_name: "meta.source"
+rules:
+- attribute_name: "new_rule"
+  name: "new rule"
+  datatype: "int"
+  expression: "[This].process_id"
+  expression_parsed: "P<1>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "process_id"
