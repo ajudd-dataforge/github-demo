@@ -1,0 +1,15 @@
+---
+output_name: "Tickets by User"
+output_type: "virtual"
+output_package_parameters:
+  view_name: "tickets_by_user"
+output_description: "view of tickets by user"
+columns:
+- name: "user"
+  datatype: "string"
+  datatype_schema: "string"
+  complex_flag: false
+- name: "ticket_count"
+  datatype: "long"
+  datatype_schema: "long"
+  complex_flag: false

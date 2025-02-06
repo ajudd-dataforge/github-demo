@@ -1,0 +1,122 @@
+---
+source_name: "pc_policyperiod"
+source_description: "Auto-created from connection metadata"
+ingestion_parameters:
+  source_query: "select * from public.pc_policyperiod"
+  generate_row_id: true
+parsing_parameters:
+  schema_evolution: "Add, Remove, Upcast"
+connection_name: "Tembo"
+schedule_name: "Default"
+active_flag: false
+raw_attributes:
+- raw_attribute_name: "jobid"
+  data_type: "double"
+- raw_attribute_name: "periodend"
+  data_type: "timestamp"
+- raw_attribute_name: "periodstart"
+  data_type: "timestamp"
+- raw_attribute_name: "policyid"
+  data_type: "double"
+- raw_attribute_name: "policyperiodid"
+  data_type: "double"
+- raw_attribute_name: "policytermid"
+  data_type: "double"
+dependencies:
+- source_name: "pc_job"
+- source_name: "pc_policyterm"
+rules:
+- attribute_name: "numpriorlosses"
+  name: "numpriorlosses"
+  datatype: "double"
+  expression: "[pc_policy].numpriorlosses"
+  expression_parsed: "P<1>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "numpriorlosses"
+    source_name: "pc_policy"
+    relations:
+    - "[pc_policyperiod]-policy period to policy term-[pc_policyterm]"
+    - "[pc_policyterm]-Policy Term to Policy-[pc_policy]"
+- attribute_name: "term_length"
+  name: "term length"
+  datatype: "int"
+  expression: "datediff(to_date([This].periodend), to_date([This].periodstart))"
+  expression_parsed: "datediff(to_date(P<1>), to_date(P<2>))"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "periodend"
+  - id: 2
+    type: "raw"
+    name: "periodstart"
+- attribute_name: "unique_policyperiodid"
+  name: "unique policyperiodid"
+  datatype: "double"
+  expression: "[This].policyperiodid"
+  expression_parsed: "P<1>"
+  unique_flag: true
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "policyperiodid"
+- attribute_name: "unique_policyperiodid_uv_flag"
+  name: "unique policyperiodid uniqueness validation"
+  parent_attribute_name: "unique_policyperiodid"
+  description: "Auto-generated rule to validate uniqueness of unique_policyperiodid"
+  datatype: "boolean"
+  expression: "COUNT(1) OVER (PARTITION BY [This].unique_policyperiodid) = 1"
+  expression_parsed: "COUNT(1) OVER (PARTITION BY P<1>) = 1"
+  rule_type_code: "V"
+  validation_action_code: "F"
+  validation_type_code: "U"
+  keep_current_flag: true
+  window_function_flag: true
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "unique_policyperiodid"
+channels:
+- output_name: "OBT hackathon policy"
+  output_source_columns:
+  - name: "account"
+    expression: "[pc_account].accountid"
+    datatype: "double"
+    parameter:
+      name: "accountid"
+      type: "raw"
+      source_name: "pc_account"
+    relations:
+    - "[pc_policyperiod]-policy period to policy term-[pc_policyterm]"
+    - "[pc_policyterm]-Policy Term to Policy-[pc_policy]"
+    - "[pc_policy]-Policy to Account-[pc_account]"
+  - name: "avg_term_length"
+    expression: "[This].term_length"
+    datatype: "double"
+    parameter:
+      name: "term_length"
+      type: "enrichment"
+  - name: "job"
+    expression: "[This].jobid"
+    datatype: "double"
+    parameter:
+      name: "jobid"
+      type: "raw"
+  - name: "organization"
+    expression: "[pc_organization].organizationid"
+    datatype: "double"
+    parameter:
+      name: "organizationid"
+      type: "raw"
+      source_name: "pc_organization"
+    relations:
+    - "[pc_policyperiod]-policy period to policy term-[pc_policyterm]"
+    - "[pcx_wc7affinitygroup]-Policy Term to Affinity Group-[pc_policyterm]"
+    - "[pcx_wc7affinitygroup]-Affinity Group to Organization-[pc_organization]"
+  - name: "policy"
+    expression: "[This].policyid"
+    datatype: "double"
+    parameter:
+      name: "policyid"
+      type: "raw"

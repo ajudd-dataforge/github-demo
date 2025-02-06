@@ -1,0 +1,14 @@
+---
+name: "id position"
+datatype: "int"
+attribute_name: "id_position"
+expression: "instr([This].html_url, [This].id)"
+expression_parsed: "instr(P<1>, P<2>)"
+test_source_name: "Zendesk - Articles"
+parameters:
+- id: 1
+  attribute_name: "html_url"
+  datatype: "string"
+- id: 2
+  attribute_name: "id"
+  datatype: "long"

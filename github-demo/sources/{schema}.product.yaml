@@ -1,0 +1,43 @@
+---
+source_name: "{schema}.Product"
+source_description: "Auto-created from connection metadata"
+ingestion_parameters:
+  source_query: "select * from Production.Product"
+  generate_row_id: true
+parsing_parameters:
+  schema_evolution: "Add, Remove, Upcast"
+cdc_refresh_parameters:
+  key_columns:
+  - "ProductID"
+  exclude_from_cdc: []
+refresh_type: "key"
+connection_name: "AW no agent"
+schedule_name: "Default"
+active_flag: false
+raw_attributes:
+- raw_attribute_name: "productid"
+  data_type: "int"
+  unique_flag: true
+- raw_attribute_name: "productmodelid"
+  data_type: "int"
+- raw_attribute_name: "productsubcategoryid"
+  data_type: "int"
+- raw_attribute_name: "sizeunitmeasurecode"
+  data_type: "string"
+- raw_attribute_name: "weightunitmeasurecode"
+  data_type: "string"
+dependencies:
+- source_name: "{schema}.BillOfMaterials"
+- source_name: "{schema}.ProductCostHistory"
+- source_name: "{schema}.ProductDocument"
+- source_name: "{schema}.ProductInventory"
+- source_name: "{schema}.ProductListPriceHistory"
+- source_name: "{schema}.ProductModel"
+- source_name: "{schema}.ProductProductPhoto"
+- source_name: "{schema}.ProductReview"
+- source_name: "{schema}.ProductSubcategory"
+- source_name: "{schema}.ProductVendor"
+- source_name: "{schema}.SpecialOfferProduct"
+- source_name: "{schema}.TransactionHistory"
+- source_name: "{schema}.UnitMeasure"
+- source_name: "{schema}.WorkOrder"

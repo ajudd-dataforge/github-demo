@@ -1,0 +1,27 @@
+---
+source_name: "SalesOrderHeader - phase 2"
+source_description: "Auto-created from connection metadata"
+ingestion_parameters:
+  source_query: "select * from Sales.SalesOrderHeader"
+parsing_parameters:
+  schema_evolution: "Add, Remove, Upcast"
+cdc_refresh_parameters:
+  key_columns:
+  - "SalesOrderID"
+  exclude_from_cdc: []
+refresh_type: "key"
+connection_name: "AW no agent"
+schedule_name: "Default"
+hub_view_name: "salesorderheader__phase_2_"
+active_flag: false
+raw_attributes:
+- raw_attribute_name: "customerid"
+  data_type: "int"
+- raw_attribute_name: "salesorderid"
+  data_type: "int"
+  unique_flag: true
+dependencies:
+- source_name: "Customer - phase 2"
+channels:
+- output_name: "test output with parens in names"
+  output_source_name: "SalesOrderHeader (phase 2)"

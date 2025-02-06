@@ -1,0 +1,20 @@
+---
+source_name: "{schema}.TransactionHistoryArchive"
+source_description: "Auto-created from connection metadata"
+ingestion_parameters:
+  source_query: "select * from Production.TransactionHistoryArchive"
+  generate_row_id: true
+parsing_parameters:
+  schema_evolution: "Add, Remove, Upcast"
+cdc_refresh_parameters:
+  key_columns:
+  - "TransactionID"
+  exclude_from_cdc: []
+refresh_type: "key"
+connection_name: "AW no agent"
+schedule_name: "Default"
+active_flag: false
+raw_attributes:
+- raw_attribute_name: "transactionid"
+  data_type: "int"
+  unique_flag: true

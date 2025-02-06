@@ -1,0 +1,10 @@
+---
+source_name: "HubSpot - Discounts"
+source_description: "getting data from hubspot"
+ingestion_parameters:
+  custom_parameters:
+    hubspot_object: "discounts"
+parsing_parameters:
+  schema_evolution: "Add, Remove, Upcast"
+connection_type: "custom"
+custom_ingest_cluster_configuration_name: "HubSpot Custom Notebook"

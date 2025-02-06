@@ -1,0 +1,37 @@
+---
+source_name: "SalesOrderHeader"
+source_description: "Auto-created from connection metadata"
+ingestion_parameters:
+  source_query: "select * from Sales.SalesOrderHeader"
+parsing_parameters:
+  schema_evolution: "Add, Remove, Upcast"
+cdc_refresh_parameters:
+  key_columns:
+  - "SalesOrderID"
+  exclude_from_cdc: []
+refresh_type: "key"
+connection_name: "AdventureWorks2019"
+hub_view_name: "adventureworks___sales_salesorderheader"
+raw_attributes:
+- raw_attribute_name: "customerid"
+  raw_metadata:
+    scale: 0
+    precision: 10
+    nullable_flag: false
+  data_type: "int"
+- raw_attribute_name: "orderdate"
+  raw_metadata:
+    scale: 3
+    precision: 23
+    nullable_flag: false
+  data_type: "timestamp"
+- raw_attribute_name: "salesorderid"
+  raw_metadata:
+    scale: 0
+    precision: 10
+    nullable_flag: false
+  data_type: "int"
+  unique_flag: true
+dependencies:
+- source_name: "Sales.Customer"
+- source_name: "SalesOrderDetail"

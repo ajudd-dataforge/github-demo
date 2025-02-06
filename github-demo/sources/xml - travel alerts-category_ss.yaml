@@ -1,0 +1,25 @@
+---
+source_name: "XML - travel alerts-category_ss"
+source_description: "Created from sub-source rule [XML - travel alerts].category_ss"
+ingestion_parameters:
+  select_list:
+  - "*"
+parsing_parameters:
+  schema_evolution: "Add, Remove, Clone"
+connection_type: "sub_source"
+sub_source_rule:
+  source_name: "XML - travel alerts"
+  attribute_name: "category_ss"
+raw_attributes:
+- raw_attribute_name: "_domain"
+  data_type: "string"
+rules:
+- attribute_name: "test_rule"
+  name: "test rule"
+  datatype: "string"
+  expression: "left([This]._domain, 1)"
+  expression_parsed: "left(P<1>, 1)"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "_domain"

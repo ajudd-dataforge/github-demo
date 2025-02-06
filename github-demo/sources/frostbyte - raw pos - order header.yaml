@@ -1,0 +1,91 @@
+---
+source_name: "FrostByte - RAW POS - Order Header"
+source_description: "x"
+ingestion_parameters:
+  file_mask: "raw_pos/order_header/order_header_0_0_0.csv.gz"
+  delete_file: false
+parsing_parameters:
+  mode: "PERMISSIVE"
+  header: false
+  schema: "order_id LONG,\n    truck_id LONG,\n    location_id DECIMAL,\n    customer_id\
+    \ LONG,\n    discount_id STRING,\n    shift_id LONG,\n    shift_start_time STRING,\n\
+    \    shift_end_time STRING,\n    order_channel STRING,\n    order_ts TIMESTAMP,\n\
+    \    served_ts STRING,\n    order_currency STRING,\n    order_amount DECIMAL,\n\
+    \    order_tax_amount STRING,\n    order_discount_amount STRING,\n    order_total\
+    \ DECIMAL"
+  schema_evolution: "Add, Remove, Upcast"
+connection_type: "file"
+connection_name: "frostbyte joe"
+process_configuration_name: "Alec Process Config"
+active_flag: false
+raw_attributes:
+- raw_attribute_name: "customer_id"
+  data_type: "long"
+- raw_attribute_name: "order_amount"
+  data_type: "decimal"
+- raw_attribute_name: "order_id"
+  data_type: "long"
+- raw_attribute_name: "order_ts"
+  data_type: "timestamp"
+dependencies:
+- source_name: "FrostByte - Customers"
+rules:
+- attribute_name: "birthday_orders"
+  name: "birthday orders"
+  datatype: "decimal"
+  expression: "CASE WHEN month([This].customer_birthday) = month([This].order_date)\
+    \ AND DAY([This].customer_birthday) = DAY([This].order_date) THEN [This].order_amount\
+    \ END"
+  expression_parsed: "CASE WHEN month(P<1>) = month(P<2>) AND DAY(P<3>) = DAY(P<4>)\
+    \ THEN P<5> END"
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "customer_birthday"
+  - id: 2
+    type: "enrichment"
+    name: "order_date"
+  - id: 3
+    type: "enrichment"
+    name: "customer_birthday"
+  - id: 4
+    type: "enrichment"
+    name: "order_date"
+  - id: 5
+    type: "raw"
+    name: "order_amount"
+- attribute_name: "customer_birthday"
+  name: "customer birthday"
+  datatype: "date"
+  expression: "[FrostByte - Customers].birthday_date"
+  expression_parsed: "P<1>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "birthday_date"
+    source_name: "FrostByte - Customers"
+    relations:
+    - "[FrostByte - Customers]-Customer - customer_id - Order Header-[FrostByte -\
+      \ RAW POS - Order Header]"
+- attribute_name: "customer_family_size"
+  name: "Customer Family Size"
+  datatype: "int"
+  expression: "[FrostByte - Customers].family_size"
+  expression_parsed: "P<1>"
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "family_size"
+    source_name: "FrostByte - Customers"
+    relations:
+    - "[FrostByte - Customers]-Customer - customer_id - Order Header-[FrostByte -\
+      \ RAW POS - Order Header]"
+- attribute_name: "order_date"
+  name: "order date"
+  datatype: "date"
+  expression: "date([This].order_ts)"
+  expression_parsed: "date(P<1>)"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "order_ts"

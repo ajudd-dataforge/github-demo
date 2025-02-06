@@ -1,0 +1,10 @@
+---
+source_name: "HubSpot - Fees"
+source_description: "getting data from HubSpot"
+ingestion_parameters:
+  custom_parameters:
+    hubspot_object: "fees"
+parsing_parameters:
+  schema_evolution: "Add, Remove, Upcast"
+connection_type: "custom"
+custom_ingest_cluster_configuration_name: "HubSpot Custom Notebook"

@@ -1,0 +1,125 @@
+---
+source_name: "meta.cluster_configuration"
+source_description: "Auto-created from connection metadata"
+ingestion_parameters:
+  source_query: "select * from meta.cluster_configuration"
+  generate_row_id: true
+parsing_parameters:
+  schema_evolution: "Add, Remove, Upcast"
+cdc_refresh_parameters:
+  key_columns:
+  - "cluster_configuration_id"
+  exclude_from_cdc: []
+refresh_type: "key"
+connection_name: "next metastore"
+schedule_name: "Default"
+raw_attributes:
+- raw_attribute_name: "cluster_configuration_id"
+  data_type: "int"
+  unique_flag: true
+- raw_attribute_name: "cluster_parameters"
+  data_type: "string"
+- raw_attribute_name: "scale_parameters"
+  data_type: "string"
+dependencies:
+- source_name: "meta.source"
+rules:
+- attribute_name: "driver_count"
+  name: "driver count"
+  datatype: "int"
+  expression: "1"
+  expression_parsed: "1"
+- attribute_name: "fixed_workers"
+  name: "fixed_workers"
+  datatype: "string"
+  expression: "get_json_object([This].scale_parameters, '$.num_workers')"
+  expression_parsed: "get_json_object(P<1>, '$.num_workers')"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "scale_parameters"
+- attribute_name: "max_workers"
+  name: "max workers"
+  datatype: "string"
+  expression: "get_json_object([This].scale_parameters, '$.max_workers')"
+  expression_parsed: "get_json_object(P<1>, '$.max_workers')"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "scale_parameters"
+- attribute_name: "min_workers"
+  name: "min_workers"
+  datatype: "string"
+  expression: "get_json_object([This].scale_parameters, '$.min_workers')"
+  expression_parsed: "get_json_object(P<1>, '$.min_workers')"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "scale_parameters"
+- attribute_name: "node_type_id"
+  name: "node_type_id"
+  datatype: "string"
+  expression: "get_json_object([This].cluster_parameters, '$.node_type_id')"
+  expression_parsed: "get_json_object(P<1>, '$.node_type_id')"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "cluster_parameters"
+- attribute_name: "node_type_size"
+  name: "node_type_size"
+  datatype: "string"
+  expression: "regexp_extract([This].node_type_id, '\\\\.(.+)$', 1)"
+  expression_parsed: "regexp_extract(P<1>, '\\\\.(.+)$', 1)"
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "node_type_id"
+- attribute_name: "number_of_cores"
+  name: "Number of Cores"
+  datatype: "double"
+  expression: "[This].node_type_size * 4"
+  expression_parsed: "P<1> * 4"
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "node_type_size"
+- attribute_name: "scale_param_struct"
+  name: "scale_param_struct"
+  datatype: "struct"
+  datatype_schema:
+    type: "struct"
+    fields:
+    - name: "scale_parameters"
+      type: "string"
+      metadata: {}
+      nullable: false
+  expression: "struct([This].scale_parameters)"
+  expression_parsed: "struct(P<1>)"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "scale_parameters"
+- attribute_name: "total_node_count"
+  name: "total node count"
+  datatype: "double"
+  expression: "[This].driver_count + [This].worker_count"
+  expression_parsed: "P<1> + P<2>"
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "driver_count"
+  - id: 2
+    type: "enrichment"
+    name: "worker_count"
+- attribute_name: "worker_count"
+  name: "worker count"
+  datatype: "double"
+  expression: "coalesce([This].fixed_workers,0) + coalesce(round(([This].max_workers/2)),0)"
+  expression_parsed: "coalesce(P<1>,0) + coalesce(round((P<2>/2)),0)"
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "fixed_workers"
+  - id: 2
+    type: "enrichment"
+    name: "max_workers"

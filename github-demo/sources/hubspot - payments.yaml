@@ -1,0 +1,12 @@
+---
+source_name: "HubSpot - Payments"
+source_description: "getting data from hubspot"
+ingestion_parameters:
+  custom_parameters:
+    hubspot_object: "commerce_payments"
+    flatten_properties: "true"
+    include_all_properties: "true"
+parsing_parameters:
+  schema_evolution: "Add, Remove, Upcast"
+connection_type: "custom"
+custom_ingest_cluster_configuration_name: "HubSpot Custom Notebook"

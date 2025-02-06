@@ -1,0 +1,777 @@
+---
+- name: "[FrostByte - Customers]-Customer - customer_id - Order Header-[FrostByte\
+    \ - RAW POS - Order Header]"
+  expression: "[This].unique_customer_id = [Related].customer_id"
+  cardinality: "1-M"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "unique_customer_id"
+    source_name: "FrostByte - Customers"
+  - id: 2
+    type: "raw"
+    name: "customer_id"
+    source_name: "FrostByte - RAW POS - Order Header"
+- name: "[meta.source]-fk_source_cluster_configuration_cp-[meta.cluster_configuration]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].custom_ingest_cluster_configuration_id = [Related].cluster_configuration_id"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "custom_ingest_cluster_configuration_id"
+    source_name: "meta.source"
+  - id: 2
+    type: "raw"
+    name: "cluster_configuration_id"
+    source_name: "meta.cluster_configuration"
+- name: "[meta.source]-Source to Process History-[history.process]"
+  expression: "[This].source_id = [Related].source_id"
+  cardinality: "1-M"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "source_id"
+    source_name: "meta.source"
+  - id: 2
+    type: "raw"
+    name: "source_id"
+    source_name: "history.process"
+- name: "[pc_policyperiod]-Policy Period to Job-[pc_job]"
+  expression: "[This].jobid = [Related].unique_job"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "jobid"
+    source_name: "pc_policyperiod"
+  - id: 2
+    type: "enrichment"
+    name: "unique_job"
+    source_name: "pc_job"
+- name: "[pc_policyperiod]-policy period to policy term-[pc_policyterm]"
+  expression: "[This].policytermid = [Related].unique_policytermid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "policytermid"
+    source_name: "pc_policyperiod"
+  - id: 2
+    type: "enrichment"
+    name: "unique_policytermid"
+    source_name: "pc_policyterm"
+- name: "[pc_policy]-Policy to Account-[pc_account]"
+  expression: "[This].accountid = [Related].unique_accountid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "accountid"
+    source_name: "pc_policy"
+  - id: 2
+    type: "enrichment"
+    name: "unique_accountid"
+    source_name: "pc_account"
+- name: "[pc_policyterm]-Policy Term to Policy-[pc_policy]"
+  expression: "[This].policyid = [Related].unique_policyid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "policyid"
+    source_name: "pc_policyterm"
+  - id: 2
+    type: "enrichment"
+    name: "unique_policyid"
+    source_name: "pc_policy"
+- name: "[pcx_wc7affinitygroup]-Affinity Group to Organization-[pc_organization]"
+  expression: "[This].organizationid = [Related].unique_organizationid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "organizationid"
+    source_name: "pcx_wc7affinitygroup"
+  - id: 2
+    type: "enrichment"
+    name: "unique_organizationid"
+    source_name: "pc_organization"
+- name: "[pcx_wc7affinitygroup]-Policy Term to Affinity Group-[pc_policyterm]"
+  expression: "[Related].affinitygroupid = [This].unique_wc7affinitygroupid"
+  cardinality: "1-M"
+  expression_parsed: "P<2> = P<1>"
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "unique_wc7affinitygroupid"
+    source_name: "pcx_wc7affinitygroup"
+  - id: 2
+    type: "raw"
+    name: "affinitygroupid"
+    source_name: "pc_policyterm"
+- name: "[SalesOrderDetail]-SalesOrderDetail - salesorderid - SalesOrderHeader-[SalesOrderHeader]"
+  expression: "[This].salesorderid = [Related].salesorderid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "salesorderid"
+    source_name: "SalesOrderDetail"
+  - id: 2
+    type: "raw"
+    name: "salesorderid"
+    source_name: "SalesOrderHeader"
+- name: "[SalesOrderDetail]-Self Relation - store_id-[SalesOrderDetail]"
+  primary_flag: false
+  expression: "[This].customer_store_id = [Related].customer_store_id"
+  cardinality: "M-M"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "customer_store_id"
+    self_relation_container: "This"
+    source_name: "SalesOrderDetail"
+  - id: 2
+    type: "enrichment"
+    name: "customer_store_id"
+    self_relation_container: "Related"
+    source_name: "SalesOrderDetail"
+- name: "[SalesOrderDetail]-SOD - detailid - SOH-[SalesOrderHeader]"
+  primary_flag: false
+  expression: "[This].customer_store_id = [Related].salesorderid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "customer_store_id"
+    source_name: "SalesOrderDetail"
+  - id: 2
+    type: "raw"
+    name: "salesorderid"
+    source_name: "SalesOrderHeader"
+- name: "[SalesOrderHeader - phase 2]-FK_SalesOrderHeader_Customer_CustomerID-[Customer\
+    \ - phase 2]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].customerid = [Related].customerid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "customerid"
+    source_name: "SalesOrderHeader - phase 2"
+  - id: 2
+    type: "raw"
+    name: "customerid"
+    source_name: "Customer - phase 2"
+- name: "[SalesOrderHeader]-SalesOrderHeader - customerid - Customer-[Sales.Customer]"
+  expression: "[This].customerid = [Related].unique_customerid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "customerid"
+    source_name: "SalesOrderHeader"
+  - id: 2
+    type: "enrichment"
+    name: "unique_customerid"
+    source_name: "Sales.Customer"
+- name: "[{schema}.BillOfMaterials]-FK_BillOfMaterials_Product_ComponentID-[{schema}.Product]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].componentid = [Related].productid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "componentid"
+    source_name: "{schema}.BillOfMaterials"
+  - id: 2
+    type: "raw"
+    name: "productid"
+    source_name: "{schema}.Product"
+- name: "[{schema}.BillOfMaterials]-FK_BillOfMaterials_Product_ProductAssemblyID-[{schema}.Product]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].productassemblyid = [Related].productid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "productassemblyid"
+    source_name: "{schema}.BillOfMaterials"
+  - id: 2
+    type: "raw"
+    name: "productid"
+    source_name: "{schema}.Product"
+- name: "[{schema}.BillOfMaterials]-FK_BillOfMaterials_UnitMeasure_UnitMeasureCode-[{schema}.UnitMeasure]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].unitmeasurecode = [Related].unitmeasurecode"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "unitmeasurecode"
+    source_name: "{schema}.BillOfMaterials"
+  - id: 2
+    type: "raw"
+    name: "unitmeasurecode"
+    source_name: "{schema}.UnitMeasure"
+- name: "[{schema}.ProductCostHistory]-FK_ProductCostHistory_Product_ProductID-[{schema}.Product]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].productid = [Related].productid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "productid"
+    source_name: "{schema}.ProductCostHistory"
+  - id: 2
+    type: "raw"
+    name: "productid"
+    source_name: "{schema}.Product"
+- name: "[{schema}.ProductDocument]-FK_ProductDocument_Document_DocumentNode-[{schema}.Document]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].documentnode = [Related].documentnode"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "documentnode"
+    source_name: "{schema}.ProductDocument"
+  - id: 2
+    type: "raw"
+    name: "documentnode"
+    source_name: "{schema}.Document"
+- name: "[{schema}.ProductDocument]-FK_ProductDocument_Product_ProductID-[{schema}.Product]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].productid = [Related].productid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "productid"
+    source_name: "{schema}.ProductDocument"
+  - id: 2
+    type: "raw"
+    name: "productid"
+    source_name: "{schema}.Product"
+- name: "[{schema}.Product]-FK_Product_ProductModel_ProductModelID-[{schema}.ProductModel]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].productmodelid = [Related].productmodelid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "productmodelid"
+    source_name: "{schema}.Product"
+  - id: 2
+    type: "raw"
+    name: "productmodelid"
+    source_name: "{schema}.ProductModel"
+- name: "[{schema}.Product]-FK_Product_ProductSubcategory_ProductSubcategoryID-[{schema}.ProductSubcategory]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].productsubcategoryid = [Related].productsubcategoryid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "productsubcategoryid"
+    source_name: "{schema}.Product"
+  - id: 2
+    type: "raw"
+    name: "productsubcategoryid"
+    source_name: "{schema}.ProductSubcategory"
+- name: "[{schema}.Product]-FK_Product_UnitMeasure_SizeUnitMeasureCode-[{schema}.UnitMeasure]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].sizeunitmeasurecode = [Related].unitmeasurecode"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "sizeunitmeasurecode"
+    source_name: "{schema}.Product"
+  - id: 2
+    type: "raw"
+    name: "unitmeasurecode"
+    source_name: "{schema}.UnitMeasure"
+- name: "[{schema}.Product]-FK_Product_UnitMeasure_WeightUnitMeasureCode-[{schema}.UnitMeasure]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].weightunitmeasurecode = [Related].unitmeasurecode"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "weightunitmeasurecode"
+    source_name: "{schema}.Product"
+  - id: 2
+    type: "raw"
+    name: "unitmeasurecode"
+    source_name: "{schema}.UnitMeasure"
+- name: "[{schema}.ProductInventory]-FK_ProductInventory_Location_LocationID-[{schema}.Location]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].locationid = [Related].locationid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "locationid"
+    source_name: "{schema}.ProductInventory"
+  - id: 2
+    type: "raw"
+    name: "locationid"
+    source_name: "{schema}.Location"
+- name: "[{schema}.ProductInventory]-FK_ProductInventory_Product_ProductID-[{schema}.Product]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].productid = [Related].productid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "productid"
+    source_name: "{schema}.ProductInventory"
+  - id: 2
+    type: "raw"
+    name: "productid"
+    source_name: "{schema}.Product"
+- name: "[{schema}.ProductListPriceHistory]-FK_ProductListPriceHistory_Product_ProductID-[{schema}.Product]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].productid = [Related].productid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "productid"
+    source_name: "{schema}.ProductListPriceHistory"
+  - id: 2
+    type: "raw"
+    name: "productid"
+    source_name: "{schema}.Product"
+- name: "[{schema}.ProductModelIllustration]-FK_ProductModelIllustration_Illustration_IllustrationID-[{schema}.Illustration]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].illustrationid = [Related].illustrationid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "illustrationid"
+    source_name: "{schema}.ProductModelIllustration"
+  - id: 2
+    type: "raw"
+    name: "illustrationid"
+    source_name: "{schema}.Illustration"
+- name: "[{schema}.ProductModelIllustration]-FK_ProductModelIllustration_ProductModel_ProductModelID-[{schema}.ProductModel]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].productmodelid = [Related].productmodelid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "productmodelid"
+    source_name: "{schema}.ProductModelIllustration"
+  - id: 2
+    type: "raw"
+    name: "productmodelid"
+    source_name: "{schema}.ProductModel"
+- name: "[{schema}.ProductModelProductDescriptionCulture]-FK_ProductModelProductDescriptionCulture_Culture_CultureID-[{schema}.Culture]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].cultureid = [Related].cultureid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "cultureid"
+    source_name: "{schema}.ProductModelProductDescriptionCulture"
+  - id: 2
+    type: "raw"
+    name: "cultureid"
+    source_name: "{schema}.Culture"
+- name: "[{schema}.ProductModelProductDescriptionCulture]-FK_ProductModelProductDescriptionCulture_ProductDescription_ProductDescriptionID-[{schema}.ProductDescription]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].productdescriptionid = [Related].productdescriptionid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "productdescriptionid"
+    source_name: "{schema}.ProductModelProductDescriptionCulture"
+  - id: 2
+    type: "raw"
+    name: "productdescriptionid"
+    source_name: "{schema}.ProductDescription"
+- name: "[{schema}.ProductModelProductDescriptionCulture]-FK_ProductModelProductDescriptionCulture_ProductModel_ProductModelID-[{schema}.ProductModel]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].productmodelid = [Related].productmodelid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "productmodelid"
+    source_name: "{schema}.ProductModelProductDescriptionCulture"
+  - id: 2
+    type: "raw"
+    name: "productmodelid"
+    source_name: "{schema}.ProductModel"
+- name: "[{schema}.ProductProductPhoto]-FK_ProductProductPhoto_ProductPhoto_ProductPhotoID-[{schema}.ProductPhoto]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].productphotoid = [Related].productphotoid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "productphotoid"
+    source_name: "{schema}.ProductProductPhoto"
+  - id: 2
+    type: "raw"
+    name: "productphotoid"
+    source_name: "{schema}.ProductPhoto"
+- name: "[{schema}.ProductProductPhoto]-FK_ProductProductPhoto_Product_ProductID-[{schema}.Product]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].productid = [Related].productid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "productid"
+    source_name: "{schema}.ProductProductPhoto"
+  - id: 2
+    type: "raw"
+    name: "productid"
+    source_name: "{schema}.Product"
+- name: "[{schema}.ProductReview]-FK_ProductReview_Product_ProductID-[{schema}.Product]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].productid = [Related].productid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "productid"
+    source_name: "{schema}.ProductReview"
+  - id: 2
+    type: "raw"
+    name: "productid"
+    source_name: "{schema}.Product"
+- name: "[{schema}.ProductSubcategory]-FK_ProductSubcategory_ProductCategory_ProductCategoryID-[{schema}.ProductCategory]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].productcategoryid = [Related].productcategoryid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "productcategoryid"
+    source_name: "{schema}.ProductSubcategory"
+  - id: 2
+    type: "raw"
+    name: "productcategoryid"
+    source_name: "{schema}.ProductCategory"
+- name: "[{schema}.ProductVendor]-FK_ProductVendor_Product_ProductID-[{schema}.Product]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].productid = [Related].productid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "productid"
+    source_name: "{schema}.ProductVendor"
+  - id: 2
+    type: "raw"
+    name: "productid"
+    source_name: "{schema}.Product"
+- name: "[{schema}.ProductVendor]-FK_ProductVendor_UnitMeasure_UnitMeasureCode-[{schema}.UnitMeasure]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].unitmeasurecode = [Related].unitmeasurecode"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "unitmeasurecode"
+    source_name: "{schema}.ProductVendor"
+  - id: 2
+    type: "raw"
+    name: "unitmeasurecode"
+    source_name: "{schema}.UnitMeasure"
+- name: "[{schema}.SpecialOfferProduct]-FK_SpecialOfferProduct_Product_ProductID-[{schema}.Product]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].productid = [Related].productid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "productid"
+    source_name: "{schema}.SpecialOfferProduct"
+  - id: 2
+    type: "raw"
+    name: "productid"
+    source_name: "{schema}.Product"
+- name: "[{schema}.TransactionHistory]-FK_TransactionHistory_Product_ProductID-[{schema}.Product]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].productid = [Related].productid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "productid"
+    source_name: "{schema}.TransactionHistory"
+  - id: 2
+    type: "raw"
+    name: "productid"
+    source_name: "{schema}.Product"
+- name: "[{schema}.WorkOrder]-FK_WorkOrder_Product_ProductID-[{schema}.Product]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].productid = [Related].productid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "productid"
+    source_name: "{schema}.WorkOrder"
+  - id: 2
+    type: "raw"
+    name: "productid"
+    source_name: "{schema}.Product"
+- name: "[{schema}.WorkOrder]-FK_WorkOrder_ScrapReason_ScrapReasonID-[{schema}.ScrapReason]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].scrapreasonid = [Related].scrapreasonid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "scrapreasonid"
+    source_name: "{schema}.WorkOrder"
+  - id: 2
+    type: "raw"
+    name: "scrapreasonid"
+    source_name: "{schema}.ScrapReason"
+- name: "[{schema}.WorkOrderRouting]-FK_WorkOrderRouting_Location_LocationID-[{schema}.Location]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].locationid = [Related].locationid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "locationid"
+    source_name: "{schema}.WorkOrderRouting"
+  - id: 2
+    type: "raw"
+    name: "locationid"
+    source_name: "{schema}.Location"
+- name: "[{schema}.WorkOrderRouting]-FK_WorkOrderRouting_WorkOrder_WorkOrderID-[{schema}.WorkOrder]"
+  primary_flag: false
+  description: "Auto-created from connection metadata"
+  expression: "[This].workorderid = [Related].workorderid"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "workorderid"
+    source_name: "{schema}.WorkOrderRouting"
+  - id: 2
+    type: "raw"
+    name: "workorderid"
+    source_name: "{schema}.WorkOrder"
+- name: "[XML - travel alerts]-Implicit-[XML - travel alerts-category_ss]"
+  description: "Implicit relation to sub-source"
+  expression: "implicit"
+  cardinality: "1-M"
+  expression_parsed: "implicit"
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "category_ss"
+    source_name: "XML - travel alerts"
+- name: "[Zendesk - Articles]-Articles - section_id - Sections-[Zendesk - Sections]"
+  expression: "[This].section_id = [Related].unique_id"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "section_id"
+    source_name: "Zendesk - Articles"
+  - id: 2
+    type: "enrichment"
+    name: "unique_id"
+    source_name: "Zendesk - Sections"
+- name: "[Zendesk - Articles]-Implicit-[Zendesk - Articles-ss_linked_articles]"
+  description: "Implicit relation to sub-source"
+  expression: "implicit"
+  cardinality: "1-M"
+  expression_parsed: "implicit"
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "ss_linked_articles"
+    source_name: "Zendesk - Articles"
+- name: "[Zendesk - Articles]-Self Relation - Article ID in Body-[Zendesk - Articles]"
+  primary_flag: false
+  expression: "[Related].body like '%' || [This].id || '%'"
+  cardinality: "M-M"
+  expression_parsed: "P<2> like '%' || P<1> || '%'"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "id"
+    self_relation_container: "This"
+    source_name: "Zendesk - Articles"
+  - id: 2
+    type: "raw"
+    name: "body"
+    self_relation_container: "Related"
+    source_name: "Zendesk - Articles"
+- name: "[Zendesk - Articles]-Self Relation - Linked articles-[Zendesk - Articles]"
+  primary_flag: false
+  expression: "array_contains([This].linked_article_urls, [Related].shortened_url)"
+  cardinality: "M-M"
+  expression_parsed: "array_contains(P<1>, P<2>)"
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "linked_article_urls"
+    self_relation_container: "This"
+    source_name: "Zendesk - Articles"
+  - id: 2
+    type: "enrichment"
+    name: "shortened_url"
+    self_relation_container: "Related"
+    source_name: "Zendesk - Articles"
+- name: "[Zendesk - Articles-ss_linked_articles]-Sub Source Linked Articles to Articles-[Zendesk\
+    \ - Articles]"
+  primary_flag: false
+  expression: "[This].url = [Related].shortened_url OR [This].url = [Related].html_url\
+    \ OR [This].url = [Related].section_url OR [This].url = [Related].category_url"
+  cardinality: "M-M"
+  expression_parsed: "P<1> = P<5> OR P<1> = P<3> OR P<1> = P<4> OR P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "url"
+    source_name: "Zendesk - Articles-ss_linked_articles"
+  - id: 2
+    type: "enrichment"
+    name: "category_url"
+    source_name: "Zendesk - Articles"
+  - id: 3
+    type: "raw"
+    name: "html_url"
+    source_name: "Zendesk - Articles"
+  - id: 4
+    type: "enrichment"
+    name: "section_url"
+    source_name: "Zendesk - Articles"
+  - id: 5
+    type: "enrichment"
+    name: "shortened_url"
+    source_name: "Zendesk - Articles"
+- name: "[Zendesk - Sections]-Sections - category_id - Categories-[Zendesk - Categories]"
+  description: "."
+  expression: "[This].category_id = [Related].unique_id"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "category_id"
+    source_name: "Zendesk - Sections"
+  - id: 2
+    type: "enrichment"
+    name: "unique_id"
+    source_name: "Zendesk - Categories"
+- name: "[Zendesk - Tickets]-Tickets - organization_id - Organizations-[Zendesk -\
+    \ Organizations]"
+  expression: "[This].organization_id = [Related].unique_organization_id"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "organization_id"
+    source_name: "Zendesk - Tickets"
+  - id: 2
+    type: "enrichment"
+    name: "unique_organization_id"
+    source_name: "Zendesk - Organizations"
+- name: "[Zendesk - Tickets]-Tickets - requester_id - Users-[Zendesk - Users]"
+  expression: "[This].requester_id = [Related].unique_id"
+  cardinality: "M-1"
+  expression_parsed: "P<1> = P<2>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "requester_id"
+    source_name: "Zendesk - Tickets"
+  - id: 2
+    type: "enrichment"
+    name: "unique_id"
+    source_name: "Zendesk - Users"

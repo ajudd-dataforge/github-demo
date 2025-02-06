@@ -1,0 +1,69 @@
+---
+source_name: "Zendesk - Articles-ss_linked_articles"
+source_description: "Created from sub-source rule [Zendesk - Articles].ss_linked_articles"
+ingestion_parameters:
+  select_list:
+  - "*"
+  generate_row_id: true
+parsing_parameters:
+  schema_evolution: "Add, Remove, Clone"
+connection_type: "sub_source"
+sub_source_rule:
+  source_name: "Zendesk - Articles"
+  attribute_name: "ss_linked_articles"
+raw_attributes:
+- raw_attribute_name: "url"
+  data_type: "string"
+dependencies:
+- source_name: "Zendesk - Articles"
+- source_name: "Zendesk - Categories"
+rules:
+- attribute_name: "valid_url"
+  name: "valid_url"
+  datatype: "boolean"
+  expression: "first([Zendesk - Articles].id) is not null"
+  expression_parsed: "A<1> is not null"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "id"
+    source_name: "Zendesk - Articles"
+    relations:
+    - "[Zendesk - Articles-ss_linked_articles]-Sub Source Linked Articles to Articles-[Zendesk\
+      \ - Articles]"
+    aggregation_id: 1
+  aggregations:
+  - id: 1
+    expression: "first(P<1>)"
+    function: "first"
+    relations:
+    - "[Zendesk - Articles-ss_linked_articles]-Sub Source Linked Articles to Articles-[Zendesk\
+      \ - Articles]"
+channels:
+- output_name: "Invalid Article URLs in Body Content"
+  filter: "[This].valid_url = false"
+  output_source_columns:
+  - name: "article_id"
+    expression: "[Zendesk - Articles].id"
+    datatype: "long"
+    parameter:
+      name: "id"
+      type: "raw"
+      source_name: "Zendesk - Articles"
+    relations:
+    - "[Zendesk - Articles]-Implicit-[Zendesk - Articles-ss_linked_articles]"
+  - name: "article_name"
+    expression: "[Zendesk - Articles].name"
+    datatype: "string"
+    parameter:
+      name: "name"
+      type: "raw"
+      source_name: "Zendesk - Articles"
+    relations:
+    - "[Zendesk - Articles]-Implicit-[Zendesk - Articles-ss_linked_articles]"
+  - name: "url_referenced"
+    expression: "[This].url"
+    datatype: "string"
+    parameter:
+      name: "url"
+      type: "raw"

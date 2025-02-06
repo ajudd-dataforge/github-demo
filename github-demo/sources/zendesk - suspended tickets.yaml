@@ -1,0 +1,12 @@
+---
+source_name: "Zendesk - Suspended Tickets"
+source_description: "pulling suspended tickets from zendesk"
+ingestion_parameters:
+  custom_parameters:
+    pageSize: "100"
+    apiObject: "suspended_tickets"
+parsing_parameters:
+  schema_evolution: "Add, Remove, Upcast"
+connection_type: "custom"
+custom_ingest_cluster_configuration_name: "Zendesk Object Custom Ingest Notebook"
+active_flag: false

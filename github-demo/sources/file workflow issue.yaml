@@ -1,0 +1,25 @@
+---
+source_name: "File workflow issue"
+source_description: "x"
+ingestion_parameters:
+  file_mask: "aj_watcher/customer*.csv"
+  archive_file: true
+  archive_folder: "inbox/aj_watcher/archive"
+cdc_refresh_parameters:
+  key_columns:
+  - "salesorderdetailid"
+  exclude_from_cdc: []
+file_type: "other"
+refresh_type: "key"
+connection_type: "file"
+connection_name: "Next Datalake Inbox"
+initiation_type: "watcher"
+parser: "custom"
+schedule_name: "Default"
+custom_parse_cluster_configuration_name: "File watcher workflow issue notebook for\
+  \ custom parse"
+active_flag: false
+raw_attributes:
+- raw_attribute_name: "salesorderdetailid"
+  data_type: "string"
+  unique_flag: true

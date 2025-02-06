@@ -1,0 +1,146 @@
+---
+source_name: "SalesOrderDetail"
+source_description: "Auto-created from connection metadata"
+ingestion_parameters:
+  source_query: "select * from Sales.SalesOrderDetail"
+parsing_parameters:
+  schema_evolution: "Add, Remove, Upcast"
+cdc_refresh_parameters:
+  key_columns:
+  - "SalesOrderDetailID"
+  exclude_from_cdc: []
+refresh_type: "key"
+connection_name: "AdventureWorks2019"
+hub_view_name: "adventureworks___sales_salesorderdetail"
+raw_attributes:
+- raw_attribute_name: "orderqty"
+  raw_metadata:
+    scale: 0
+    precision: 5
+    nullable_flag: false
+  data_type: "int"
+- raw_attribute_name: "salesorderdetailid"
+  raw_metadata:
+    scale: 0
+    precision: 10
+    nullable_flag: false
+  data_type: "int"
+  unique_flag: true
+- raw_attribute_name: "salesorderid"
+  raw_metadata:
+    scale: 0
+    precision: 10
+    nullable_flag: false
+  data_type: "int"
+- raw_attribute_name: "unitprice"
+  raw_metadata:
+    scale: 4
+    precision: 19
+    nullable_flag: false
+  data_type: "decimal"
+- raw_attribute_name: "unitpricediscount"
+  raw_metadata:
+    scale: 4
+    precision: 19
+    nullable_flag: false
+  data_type: "decimal"
+dependencies:
+- source_name: "Sales.Customer"
+- source_name: "SalesOrderHeader"
+rules:
+- attribute_name: "customer_store_id"
+  name: "customer store id"
+  datatype: "int"
+  expression: "[Sales.Customer].storeid"
+  expression_parsed: "P<1>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "storeid"
+    source_name: "Sales.Customer"
+    relations:
+    - "[SalesOrderDetail]-SalesOrderDetail - salesorderid - SalesOrderHeader-[SalesOrderHeader]"
+    - "[SalesOrderHeader]-SalesOrderHeader - customerid - Customer-[Sales.Customer]"
+- attribute_name: "discounted_price"
+  name: "discounted price"
+  datatype: "decimal"
+  expression: "[This].unitprice * (1 - [This].unitpricediscount)"
+  expression_parsed: "P<1> * (1 - P<2>)"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "unitprice"
+  - id: 2
+    type: "raw"
+    name: "unitpricediscount"
+- attribute_name: "has_order_qty"
+  name: "has order qty"
+  datatype: "boolean"
+  expression: "[This].orderqty > 0"
+  expression_parsed: "P<1> > 0"
+  rule_type_code: "V"
+  validation_action_code: "W"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "orderqty"
+- attribute_name: "order_date"
+  name: "order date"
+  datatype: "timestamp"
+  expression: "[SourceA].orderdate"
+  expression_parsed: "P<1>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "orderdate"
+    source_name: "SalesOrderHeader"
+    relations:
+    - "[SalesOrderDetail]-SalesOrderDetail - salesorderid - SalesOrderHeader-[SalesOrderHeader]"
+- attribute_name: "sales_total"
+  name: "sales total"
+  datatype: "decimal"
+  expression: "([This].unitprice - [This].unitpricediscount) * [This].orderqty"
+  expression_parsed: "(P<1> - P<2>) * P<3>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "unitprice"
+  - id: 2
+    type: "raw"
+    name: "unitpricediscount"
+  - id: 3
+    type: "raw"
+    name: "orderqty"
+- attribute_name: "store_sales_total"
+  name: "store sales total"
+  datatype: "decimal"
+  expression: "SUM([This].sales_total) OVER (PARTITION BY [This].customer_store_id)"
+  expression_parsed: "SUM(P<1>) OVER (PARTITION BY P<2>)"
+  keep_current_flag: true
+  window_function_flag: true
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "sales_total"
+  - id: 2
+    type: "enrichment"
+    name: "customer_store_id"
+- attribute_name: "store_sales_total_self_relation"
+  name: "store sales total self relation"
+  datatype: "decimal"
+  expression: "sum([SalesOrderDetail].sales_total)"
+  expression_parsed: "A<1>"
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "sales_total"
+    relations:
+    - "[SalesOrderDetail]-Self Relation - store_id-[SalesOrderDetail]"
+    self_relation_container: "Related"
+    aggregation_id: 1
+  aggregations:
+  - id: 1
+    expression: "sum(P<1>)"
+    function: "sum"
+    relations:
+    - "[SalesOrderDetail]-Self Relation - store_id-[SalesOrderDetail]"

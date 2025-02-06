@@ -1,0 +1,27 @@
+---
+source_name: "{schema}.ProductVendor"
+source_description: "Auto-created from connection metadata"
+ingestion_parameters:
+  source_query: "select * from Purchasing.ProductVendor"
+  generate_row_id: true
+parsing_parameters:
+  schema_evolution: "Add, Remove, Upcast"
+cdc_refresh_parameters:
+  key_columns:
+  - "ProductID"
+  - "BusinessEntityID"
+  exclude_from_cdc: []
+refresh_type: "key"
+connection_name: "AW no agent"
+schedule_name: "Default"
+active_flag: false
+raw_attributes:
+- raw_attribute_name: "businessentityid"
+  data_type: "int"
+- raw_attribute_name: "productid"
+  data_type: "int"
+- raw_attribute_name: "unitmeasurecode"
+  data_type: "string"
+dependencies:
+- source_name: "{schema}.Product"
+- source_name: "{schema}.UnitMeasure"

@@ -1,0 +1,31 @@
+---
+output_name: "OBT hackathon policy"
+output_type: "virtual"
+output_package_parameters:
+  view_name: "policy_output"
+output_description: "x"
+columns:
+- name: "job"
+  datatype: "double"
+  datatype_schema: "double"
+  complex_flag: false
+- name: "policy"
+  datatype: "double"
+  datatype_schema: "double"
+  complex_flag: false
+- name: "account"
+  datatype: "double"
+  datatype_schema: "double"
+  complex_flag: false
+- name: "organization"
+  datatype: "double"
+  datatype_schema: "double"
+  complex_flag: false
+- name: "avg_term_length"
+  datatype: "int"
+  datatype_schema: "integer"
+  complex_flag: false
+- name: "num_prior_losses"
+  datatype: "double"
+  datatype_schema: "double"
+  complex_flag: false

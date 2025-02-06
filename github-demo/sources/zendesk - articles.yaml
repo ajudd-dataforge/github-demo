@@ -1,0 +1,230 @@
+---
+source_name: "Zendesk - Articles"
+source_description: "pulling article information from Zendesk"
+ingestion_parameters:
+  custom_parameters:
+    api: "help_center"
+    locale: "en-us"
+    pageSize: "100"
+    apiObject: "articles"
+parsing_parameters:
+  schema_evolution: "Add, Remove, Upcast"
+connection_type: "custom"
+custom_ingest_cluster_configuration_name: "Zendesk Object Custom Ingest Notebook"
+active_flag: false
+raw_attributes:
+- raw_attribute_name: "body"
+  data_type: "string"
+- raw_attribute_name: "html_url"
+  data_type: "string"
+- raw_attribute_name: "id"
+  data_type: "long"
+- raw_attribute_name: "name"
+  data_type: "string"
+- raw_attribute_name: "section_id"
+  data_type: "long"
+dependencies:
+- source_name: "Zendesk - Articles-ss_linked_articles"
+- source_name: "Zendesk - Sections"
+rules:
+- attribute_name: "all_shortened_urls"
+  name: "all_shortened_urls"
+  description: "method 1 array_union and array_except. creating an array of all shortened\
+    \ urls to compare to extracted urls from body of each record"
+  datatype: "array"
+  datatype_schema:
+    type: "array"
+    elementType: "string"
+    containsNull: false
+  expression: "collect_list([This].shortened_url) over ()"
+  expression_parsed: "collect_list(P<1>) over ()"
+  keep_current_flag: true
+  window_function_flag: true
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "shortened_url"
+- attribute_name: "category_section_article_shortened_urls"
+  name: "category section article shortened urls"
+  description: "method 1 array_union and array_except"
+  datatype: "array"
+  datatype_schema:
+    type: "array"
+    elementType: "string"
+    containsNull: false
+  expression: "array_union([Zendesk - Sections].category_and_section_shortened_urls,\
+    \ [This].all_shortened_urls)"
+  expression_parsed: "array_union(P<1>, P<2>)"
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "category_and_section_shortened_urls"
+    source_name: "Zendesk - Sections"
+    relations:
+    - "[Zendesk - Articles]-Articles - section_id - Sections-[Zendesk - Sections]"
+  - id: 2
+    type: "enrichment"
+    name: "all_shortened_urls"
+- attribute_name: "category_url"
+  name: "category_url"
+  description: "method 2 sub source"
+  datatype: "string"
+  expression: "[Zendesk - Categories].html_url"
+  expression_parsed: "P<1>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "html_url"
+    source_name: "Zendesk - Categories"
+    relations:
+    - "[Zendesk - Articles]-Articles - section_id - Sections-[Zendesk - Sections]"
+    - "[Zendesk - Sections]-Sections - category_id - Categories-[Zendesk - Categories]"
+- attribute_name: "hyperlinked_in_articles"
+  name: "hyperlinked_in_articles"
+  datatype: "array"
+  datatype_schema:
+    type: "array"
+    elementType: "string"
+    containsNull: false
+  expression: "array_agg([Zendesk - Articles].name)"
+  expression_parsed: "A<1>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "name"
+    relations:
+    - "[Zendesk - Articles]-Self Relation - Article ID in Body-[Zendesk - Articles]"
+    self_relation_container: "Related"
+    aggregation_id: 1
+  aggregations:
+  - id: 1
+    expression: "array_agg(P<1>)"
+    function: "array_agg"
+    relations:
+    - "[Zendesk - Articles]-Self Relation - Article ID in Body-[Zendesk - Articles]"
+- attribute_name: "id_position"
+  name: "id position"
+  description: "method 1 and 2"
+  datatype: "int"
+  expression: "instr([This].html_url, [This].id)"
+  expression_parsed: "instr(P<1>, P<2>)"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "html_url"
+  - id: 2
+    type: "raw"
+    name: "id"
+- attribute_name: "invalid_urls"
+  name: "invalid_urls"
+  description: "method 1 array_union and array_except"
+  datatype: "array"
+  datatype_schema:
+    type: "array"
+    elementType: "string"
+    containsNull: false
+  expression: "array_except([This].linked_article_urls, [This].category_section_article_shortened_urls)"
+  expression_parsed: "array_except(P<1>, P<2>)"
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "linked_article_urls"
+  - id: 2
+    type: "enrichment"
+    name: "category_section_article_shortened_urls"
+- attribute_name: "linked_article_urls"
+  name: "linked_article_urls"
+  description: "method 1 array_union and array_except"
+  datatype: "array"
+  datatype_schema:
+    type: "array"
+    elementType: "string"
+    containsNull: true
+  expression: "regexp_extract_all([This].body, 'href=\"(https://docs[^\"]*/hc/[^\"\
+    ]*)\"', 1)"
+  expression_parsed: "regexp_extract_all(P<1>, 'href=\"(https://docs[^\"]*/hc/[^\"\
+    ]*)\"', 1)"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "body"
+- attribute_name: "section_url"
+  name: "section_url"
+  description: "method 2 sub source"
+  datatype: "string"
+  expression: "[Zendesk - Sections].html_url"
+  expression_parsed: "P<1>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "html_url"
+    source_name: "Zendesk - Sections"
+    relations:
+    - "[Zendesk - Articles]-Articles - section_id - Sections-[Zendesk - Sections]"
+- attribute_name: "shortened_url"
+  name: "shortened_url"
+  description: "method 1 and 2 shortening the url to end only at article ID for matching\
+    \ purposes"
+  datatype: "string"
+  expression: "left([This].html_url, [This].id_position + len([This].id) - 1)"
+  expression_parsed: "left(P<1>, P<2> + len(P<3>) - 1)"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "html_url"
+  - id: 2
+    type: "enrichment"
+    name: "id_position"
+  - id: 3
+    type: "raw"
+    name: "id"
+- attribute_name: "ss_linked_articles"
+  name: "ss_linked_articles"
+  description: "method 2 sub source"
+  datatype: "array"
+  datatype_schema:
+    type: "array"
+    elementType:
+      type: "struct"
+      fields:
+      - name: "url"
+        type: "string"
+        metadata: {}
+        nullable: true
+    containsNull: false
+  expression: "transform(regexp_extract_all([This].body, 'href=\"(https://docs[^\"\
+    ]*/hc/[^\"]*)\"', 1), x -> struct(x as url))"
+  expression_parsed: "transform(regexp_extract_all(P<1>, 'href=\"(https://docs[^\"\
+    ]*/hc/[^\"]*)\"', 1), x -> struct(x as url))"
+  rule_type_code: "S"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "body"
+- attribute_name: "unique_id"
+  name: "unique id"
+  description: "relation builder"
+  datatype: "long"
+  expression: "[This].id"
+  expression_parsed: "P<1>"
+  unique_flag: true
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "id"
+- attribute_name: "unique_id_uv_flag"
+  name: "unique id uniqueness validation"
+  parent_attribute_name: "unique_id"
+  description: "Auto-generated rule to validate uniqueness of unique_id"
+  datatype: "boolean"
+  expression: "COUNT(1) OVER (PARTITION BY [This].unique_id) = 1"
+  expression_parsed: "COUNT(1) OVER (PARTITION BY P<1>) = 1"
+  rule_type_code: "V"
+  validation_action_code: "F"
+  validation_type_code: "U"
+  keep_current_flag: true
+  window_function_flag: true
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "unique_id"

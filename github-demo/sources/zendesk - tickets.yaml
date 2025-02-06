@@ -1,0 +1,112 @@
+---
+source_name: "Zendesk - Tickets"
+source_description: "pulling ticket data"
+ingestion_parameters:
+  custom_parameters:
+    pageSize: "100"
+    apiObject: "tickets"
+parsing_parameters:
+  schema_evolution: "Add, Remove, Upcast"
+connection_type: "custom"
+custom_ingest_cluster_configuration_name: "Zendesk Object Custom Ingest Notebook"
+active_flag: false
+raw_attributes:
+- raw_attribute_name: "created_at"
+  data_type: "string"
+- raw_attribute_name: "id"
+  data_type: "long"
+- raw_attribute_name: "organization_id"
+  data_type: "long"
+- raw_attribute_name: "requester_id"
+  data_type: "long"
+dependencies:
+- source_name: "Zendesk - Organizations"
+- source_name: "Zendesk - Users"
+rules:
+- attribute_name: "date_created"
+  name: "date_created"
+  datatype: "date"
+  expression: "to_date([This].created_at)"
+  expression_parsed: "to_date(P<1>)"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "created_at"
+- attribute_name: "month_created"
+  name: "month_created"
+  datatype: "string"
+  expression: "date_format([This].date_created, 'MM/yyyy')"
+  expression_parsed: "date_format(P<1>, 'MM/yyyy')"
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "date_created"
+- attribute_name: "unique_id"
+  rule_template_name: "unique id"
+  name: "unique id"
+  datatype: "long"
+  expression: "[This].id"
+  expression_parsed: "P<1>"
+  unique_flag: true
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "id"
+- attribute_name: "unique_id_uv_flag"
+  name: "unique id uniqueness validation"
+  parent_attribute_name: "unique_id"
+  description: "Auto-generated rule to validate uniqueness of unique_id"
+  datatype: "boolean"
+  expression: "COUNT(1) OVER (PARTITION BY [This].unique_id) = 1"
+  expression_parsed: "COUNT(1) OVER (PARTITION BY P<1>) = 1"
+  rule_type_code: "V"
+  validation_action_code: "F"
+  validation_type_code: "U"
+  keep_current_flag: true
+  window_function_flag: true
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "unique_id"
+channels:
+- output_name: "Tickets by Organization and Date"
+  operation_type: "Aggregate"
+  output_source_columns:
+  - name: "date"
+    expression: "[This].date_created"
+    datatype: "date"
+    parameter:
+      name: "date_created"
+      type: "enrichment"
+  - name: "organization"
+    expression: "[This].organization_id"
+    datatype: "long"
+    parameter:
+      name: "organization_id"
+      type: "raw"
+  - name: "ticket_count"
+    expression: "[This].id"
+    datatype: "long"
+    parameter:
+      name: "id"
+      type: "raw"
+    aggregate: "count"
+- output_name: "Tickets by User"
+  operation_type: "Aggregate"
+  output_source_columns:
+  - name: "ticket_count"
+    expression: "[This].id"
+    datatype: "long"
+    parameter:
+      name: "id"
+      type: "raw"
+    aggregate: "count"
+  - name: "user"
+    expression: "[Zendesk - Users].name"
+    datatype: "string"
+    parameter:
+      name: "name"
+      type: "raw"
+      source_name: "Zendesk - Users"
+    relations:
+    - "[Zendesk - Tickets]-Tickets - requester_id - Users-[Zendesk - Users]"

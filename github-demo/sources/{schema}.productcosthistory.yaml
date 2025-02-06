@@ -1,0 +1,24 @@
+---
+source_name: "{schema}.ProductCostHistory"
+source_description: "Auto-created from connection metadata"
+ingestion_parameters:
+  source_query: "select * from Production.ProductCostHistory"
+  generate_row_id: true
+parsing_parameters:
+  schema_evolution: "Add, Remove, Upcast"
+cdc_refresh_parameters:
+  key_columns:
+  - "ProductID"
+  - "StartDate"
+  exclude_from_cdc: []
+refresh_type: "key"
+connection_name: "AW no agent"
+schedule_name: "Default"
+active_flag: false
+raw_attributes:
+- raw_attribute_name: "productid"
+  data_type: "int"
+- raw_attribute_name: "startdate"
+  data_type: "timestamp"
+dependencies:
+- source_name: "{schema}.Product"

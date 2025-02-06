@@ -1,0 +1,133 @@
+---
+source_name: "FrostByte - Customers"
+source_description: "customer data"
+ingestion_parameters:
+  file_mask: "raw_customer/customer_loyalty/customer_loyalty*"
+  delete_file: false
+parsing_parameters:
+  mode: "PERMISSIVE"
+  header: false
+  schema: "customer_id LONG,\n    first_name STRING,\n    last_name STRING,\n    city\
+    \ STRING,\n    country STRING,\n    postal_code STRING,\n    preferred_language\
+    \ STRING,\n    gender STRING,\n    favourite_brand STRING,\n    marital_status\
+    \ STRING,\n    children_count STRING,\n    sign_up_date DATE,\n    birthday_date\
+    \ DATE,\n    e_mail STRING,\n    phone_number STRING"
+  schema_evolution: "Add, Remove, Upcast"
+connection_type: "file"
+connection_name: "frostbyte joe"
+process_configuration_name: "Alec Process Config"
+active_flag: false
+raw_attributes:
+- raw_attribute_name: "birthday_date"
+  data_type: "date"
+- raw_attribute_name: "children_count"
+  data_type: "string"
+- raw_attribute_name: "customer_id"
+  data_type: "long"
+- raw_attribute_name: "marital_status"
+  data_type: "string"
+dependencies:
+- source_name: "FrostByte - RAW POS - Order Header"
+rules:
+- attribute_name: "birthday_orders"
+  name: "Birthday orders"
+  datatype: "decimal"
+  expression: "SUM([FrostByte - RAW POS - Order Header].birthday_orders)"
+  expression_parsed: "A<1>"
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "birthday_orders"
+    source_name: "FrostByte - RAW POS - Order Header"
+    relations:
+    - "[FrostByte - Customers]-Customer - customer_id - Order Header-[FrostByte -\
+      \ RAW POS - Order Header]"
+    aggregation_id: 1
+  aggregations:
+  - id: 1
+    expression: "sum(P<1>)"
+    function: "sum"
+    relations:
+    - "[FrostByte - Customers]-Customer - customer_id - Order Header-[FrostByte -\
+      \ RAW POS - Order Header]"
+- attribute_name: "birthday_orders_per_family_member"
+  name: "Birthday orders per family member"
+  datatype: "decimal"
+  expression: "[This].birthday_orders / [This].family_size"
+  expression_parsed: "P<1> / P<2>"
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "birthday_orders"
+  - id: 2
+    type: "enrichment"
+    name: "family_size"
+- attribute_name: "family_size"
+  name: "family_size"
+  datatype: "int"
+  expression: "CASE \nWHEN [This].marital_status = 'Single' THEN 1\nWHEN [This].marital_status\
+    \ = 'Married' THEN 2\nELSE 1\nEND\n+\nCASE\nWHEN [This].children_count = 'Undisclosed'\
+    \ THEN 0\nELSE int([This].children_count)\nEND "
+  expression_parsed: "CASE \nWHEN P<1> = 'Single' THEN 1\nWHEN P<2> = 'Married' THEN\
+    \ 2\nELSE 1\nEND\n+\nCASE\nWHEN P<3> = 'Undisclosed' THEN 0\nELSE int(P<4>)\n\
+    END "
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "marital_status"
+  - id: 2
+    type: "raw"
+    name: "marital_status"
+  - id: 3
+    type: "raw"
+    name: "children_count"
+  - id: 4
+    type: "raw"
+    name: "children_count"
+- attribute_name: "order_count"
+  name: "Order Count"
+  datatype: "long"
+  expression: "COUNT([FrostByte - RAW POS - Order Header].order_id)"
+  expression_parsed: "A<1>"
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "order_id"
+    source_name: "FrostByte - RAW POS - Order Header"
+    relations:
+    - "[FrostByte - Customers]-Customer - customer_id - Order Header-[FrostByte -\
+      \ RAW POS - Order Header]"
+    aggregation_id: 1
+  aggregations:
+  - id: 1
+    expression: "count(P<1>)"
+    function: "count"
+    relations:
+    - "[FrostByte - Customers]-Customer - customer_id - Order Header-[FrostByte -\
+      \ RAW POS - Order Header]"
+- attribute_name: "unique_customer_id"
+  name: "Unique Customer ID"
+  datatype: "long"
+  expression: "[This].customer_id"
+  expression_parsed: "P<1>"
+  unique_flag: true
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "customer_id"
+- attribute_name: "unique_customer_id_uv_flag"
+  name: "Unique Customer ID uniqueness validation"
+  parent_attribute_name: "unique_customer_id"
+  description: "Auto-generated rule to validate uniqueness of unique_customer_id"
+  datatype: "boolean"
+  expression: "COUNT(1) OVER (PARTITION BY [This].unique_customer_id) = 1"
+  expression_parsed: "COUNT(1) OVER (PARTITION BY P<1>) = 1"
+  rule_type_code: "V"
+  validation_action_code: "F"
+  validation_type_code: "U"
+  keep_current_flag: true
+  window_function_flag: true
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "unique_customer_id"

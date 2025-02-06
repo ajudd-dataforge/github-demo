@@ -1,0 +1,43 @@
+---
+source_name: "pc_account"
+source_description: "Auto-created from connection metadata"
+ingestion_parameters:
+  source_query: "select * from public.pc_account"
+  generate_row_id: true
+parsing_parameters:
+  schema_evolution: "Add, Remove, Upcast"
+connection_name: "Tembo"
+schedule_name: "Default"
+active_flag: false
+raw_attributes:
+- raw_attribute_name: "accountid"
+  data_type: "double"
+dependencies:
+- source_name: "pc_policy"
+rules:
+- attribute_name: "unique_accountid"
+  name: "unique accountid"
+  datatype: "double"
+  expression: "[This].accountid"
+  expression_parsed: "P<1>"
+  unique_flag: true
+  parameters:
+  - id: 1
+    type: "raw"
+    name: "accountid"
+- attribute_name: "unique_accountid_uv_flag"
+  name: "unique accountid uniqueness validation"
+  parent_attribute_name: "unique_accountid"
+  description: "Auto-generated rule to validate uniqueness of unique_accountid"
+  datatype: "boolean"
+  expression: "COUNT(1) OVER (PARTITION BY [This].unique_accountid) = 1"
+  expression_parsed: "COUNT(1) OVER (PARTITION BY P<1>) = 1"
+  rule_type_code: "V"
+  validation_action_code: "F"
+  validation_type_code: "U"
+  keep_current_flag: true
+  window_function_flag: true
+  parameters:
+  - id: 1
+    type: "enrichment"
+    name: "unique_accountid"

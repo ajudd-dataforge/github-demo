@@ -1,0 +1,14 @@
+---
+source_name: "HubSpot - Quotes"
+source_description: "getting data from hubspot"
+ingestion_parameters:
+  custom_parameters:
+    limit: 100
+    archived: "false"
+    hubspot_object: "quotes"
+    flatten_properties: "true"
+    include_all_properties: "true"
+parsing_parameters:
+  schema_evolution: "Add, Remove, Upcast"
+connection_type: "custom"
+custom_ingest_cluster_configuration_name: "HubSpot Custom Notebook"

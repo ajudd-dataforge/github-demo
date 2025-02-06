@@ -1,0 +1,11 @@
+---
+source_name: "pc_indcde"
+source_description: "Auto-created from connection metadata"
+ingestion_parameters:
+  source_query: "select * from public.pc_indcde"
+  generate_row_id: true
+parsing_parameters:
+  schema_evolution: "Add, Remove, Upcast"
+connection_name: "Tembo"
+schedule_name: "Default"
+active_flag: false
